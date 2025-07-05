@@ -71,10 +71,7 @@ html_context = {
 }
 
 html_show_sphinx = False
-
-# -- EPUB output -------------------------------------------------
 epub_show_urls = "footnote"
-
 
 autodoc_mock_imports = [
     "torch",
@@ -86,8 +83,8 @@ autodoc_mock_imports = [
     "skimage",
     "cv2",
     "matplotlib",
-    "numpy",  # 也建议 mock，大包导入快
-    "scipy",
+    "numpy",
+    "dask",
     "pyntcloud",
     "natsort",
 ]
