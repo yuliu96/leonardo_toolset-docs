@@ -103,4 +103,8 @@ autodoc_mock_imports = [
     "gc",
     "shutil",
     "traceback",
+    "yaml",
+    "jinja2",
+    "pathlib",
+    "re",
 ]
