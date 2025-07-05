@@ -87,6 +87,12 @@ autodoc_mock_imports = [
     "pyntcloud",
     "natsort",
     "ptwt",
-    # "numpy",   <- ❌ REMOVE
-    # "pywt",    <- ❌ REMOVE
+    "SimpleITK",
+    "antspyx",
+    "jax",
+    "jaxwt",
+    "dm_haiku",
+    "bioio_ome_tiff",
+    "bioio_tifffile",
+    "asciitree",
 ]
