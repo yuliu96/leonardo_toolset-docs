@@ -97,4 +97,5 @@ autodoc_mock_imports = [
     "asciitree",
     "numpy",
     "tqdm",
+    "pywt",
 ]
