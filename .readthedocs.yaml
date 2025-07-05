@@ -1,4 +1,3 @@
-# .readthedocs.yaml
 version: 2
 
 build:
@@ -9,13 +8,14 @@ build:
     post_install:
       - pip install numpy
       - pip install PyWavelets ptwt
-      - pip install .[doc]
+      - pip install asciitree==0.3.2
+      - pip install .  # 不用 .[doc]，因为你没定义这个 extra
       - pip install torch open3d dask tifffile scikit-image h5py pandas opencv-python matplotlib natsort
       - pip install sphinx-rtd-theme nbsphinx sphinx-copybutton sphinxcontrib-video sphinx-togglebutton
-
-sphinx:
-  configuration: docs/conf.py
 
 python:
   install:
     - requirements: docs/requirements.txt
+
+sphinx:
+  configuration: docs/conf.py
