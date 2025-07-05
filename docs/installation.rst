@@ -1,51 +1,68 @@
-.. highlight:: shell
-
-============
 Installation
 ============
 
+Leonardo requires Python>=3.9. We highly recommend using :mod:`conda` 
+virtual environment to install and operate Leonardo.
 
-Stable release
---------------
+PyPI
+-----
 
-To install leonardo_toolset, run this command in your terminal:
+CPU version
+~~~~~~~~~~~
 
-.. code-block:: console
+To use Leonardo with CPU, install Leonardo using:
 
-    $ pip install leonardo_toolset
+.. code-block:: bash
 
-This is the preferred method to install Leonardo_toolset, as it will always install the most recent stable release.
+    conda create -n leonardo python=3.9
+    conda activate leonardo
+    pip install leonardo_toolset
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
+or full software including Napari plugins:
 
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
+.. code-block:: bash
 
+    # for Windows or Linux users
+    pip install leonardo_toolset[napari]
+    # for macOS users
+    pip install leonardo_toolset`[napari]`
 
-From sources
-------------
+Leonardo has now been tested on Linux and Windows. 
+Leonardo may have issues on macOS caused by third-party dependencies, specifically resulting in a "metadata-generation-failed" error.
 
-The sources for leonardo_toolset can be downloaded from the `Github repo`_.
+GPU version
+~~~~~~~~~~~
 
-You can either clone the public repository:
+To use Leonardo with GPU:
 
-.. code-block:: console
+- Setup Pytorch according to your own system setting, following the `official guideline <https://pytorch.org/get-started/locally/>`_.
+- Setup Jax according to your own system setting, following the `official guideline <https://jax.readthedocs.io/en/latest/installation.html>`_ (Optional).
+- Install Leonardo following the instructions under Section CPU version.
 
-    $ git clone git://github.com/peng-lab/leonardo_toolset
+.. toggle::
+   :show:
 
-Or download the `tarball`_:
+    Core components in :mod:`Leonardo` are installable separately:
 
-.. code-block:: console
+    .. code-block:: bash
 
-    $ curl  -OL https://github.com/peng-lab/leonardo_toolset/tarball/main
+        # Leonardo-DeStripe
+        pip install lsfm-destripe
+        
+        # Leonardo-Fuse
+        pip install lsfm-fuse
 
-Once you have a copy of the source, you can install it with:
+        # Leonardo-DeStripe in Napari
+        pip install lsfm_destripe_napari
 
-.. code-block:: console
+        # Leonardo-Fuse in Napari
+        pip install lsfm_fusion_napari
 
-    $ python setup.py install
+Development Version
+--------------------
 
+To work with the latest development version, install from GitHub using:
 
-.. _Github repo: https://github.com/peng-lab/leonardo_toolset
-.. _tarball: https://github.com/peng-lab/leonardo_toolset/tarball/main
+.. code-block:: bash
+
+    pip install git+https://github.com/peng-lab/leonardo_toolset.git
