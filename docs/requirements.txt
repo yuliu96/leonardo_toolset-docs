@@ -62,4 +62,3 @@ sphinx-copybutton
 sphinxcontrib-video
 sphinx_togglebutton
 pydata_sphinx_theme
-leonardo_toolset
