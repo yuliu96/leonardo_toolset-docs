@@ -69,21 +69,3 @@ html_show_sphinx = False
 
 # -- EPUB output -------------------------------------------------
 epub_show_urls = "footnote"
-
-
-# -- Hide 'Bases: object' via monkey patch -----------------------
-def patched_add_directive_header(self, sig):
-    if self.doc_as_attr:
-        return
-    sourcename = self.get_sourcename()
-    self.add_line(f".. class:: {self.object_name}{sig}", sourcename)
-
-
-def apply_patch(app):
-    from sphinx.ext.autodoc import ClassDocumenter
-
-    ClassDocumenter.add_directive_header = patched_add_directive_header
-
-
-def setup(app):
-    app.connect("builder-inited", apply_patch)
