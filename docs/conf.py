@@ -4,8 +4,12 @@ import os
 import sys
 
 # -- Path setup ---------------------------------------------------
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.insert(0, os.path.abspath("../leonardo_toolset"))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0,
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "leonardo_toolset")),
+)
+
 
 # -- Project information ------------------------------------------
 project = "Leonardo"
