@@ -50,47 +50,6 @@ import pandas as pd
 pd.set_option("display.width", 10000)
 
 
-def make_Ramp(ramp_colors):
-    """
-    Create a matplotlib LinearSegmentedColormap from a list of color strings.
-
-    Args:
-        ramp_colors (list of str): List of color hex codes or names.
-
-    Returns:
-        LinearSegmentedColormap: The generated color ramp.
-    """
-    from colour import Color
-    from matplotlib.colors import LinearSegmentedColormap
-
-    color_ramp = LinearSegmentedColormap.from_list(
-        "my_list", [Color(c1).rgb for c1 in ramp_colors]
-    )
-    return color_ramp
-
-
-custom_ramp = make_Ramp(["#000000", "#D62728"])
-red = custom_ramp(range(256))[:, :-1] * 255
-
-custom_ramp = make_Ramp(["#000000", "#FF7F0E"])
-orange = custom_ramp(range(256))[:, :-1] * 255
-
-custom_ramp = make_Ramp(["#000000", "#17BECF"])
-blue = custom_ramp(range(256))[:, :-1] * 255
-
-custom_ramp = make_Ramp(["#000000", "#2CA02C"])
-green = custom_ramp(range(256))[:, :-1] * 255
-
-custom_ramp = make_Ramp(["#000000", "#9467BD"])
-purple = custom_ramp(range(256))[:, :-1] * 255
-
-red = red.astype(np.uint8).T
-orange = orange.astype(np.uint8).T
-blue = blue.astype(np.uint8).T
-purple = purple.astype(np.uint8).T
-green = green.astype(np.uint8).T
-
-
 def define_registration_params(
     use_exist_reg: bool = False,
     require_reg_finetune: bool = True,
