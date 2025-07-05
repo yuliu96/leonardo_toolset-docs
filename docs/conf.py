@@ -91,7 +91,7 @@ autodoc_mock_imports = [
     "ants",
     "jax",
     "jaxwt",
-    "dm_haiku",
+    "haiku",
     "bioio_ome_tiff",
     "bioio_tifffile",
     "asciitree",
@@ -108,4 +108,5 @@ autodoc_mock_imports = [
     "pathlib",
     "re",
     "colour",
+    "haiku",
 ]
