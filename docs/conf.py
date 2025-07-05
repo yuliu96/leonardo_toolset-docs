@@ -74,3 +74,20 @@ html_show_sphinx = False
 
 # -- EPUB output -------------------------------------------------
 epub_show_urls = "footnote"
+
+
+autodoc_mock_imports = [
+    "torch",
+    "open3d",
+    "bioio",
+    "tifffile",
+    "pandas",
+    "h5py",
+    "skimage",
+    "cv2",
+    "matplotlib",
+    "numpy",  # 也建议 mock，大包导入快
+    "scipy",
+    "pyntcloud",
+    "natsort",
+]
