@@ -1,4 +1,4 @@
-fusion.fuse_det
+FUSE_det
 ===============
 
 .. code-block:: python
