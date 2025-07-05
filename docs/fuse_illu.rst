@@ -1,7 +1,11 @@
-fusion.fuse_det
+FUSE_illu
 ===============
 
-.. automodule:: leonardo_toolset.fusion.fuse_det
-   :members:
+.. code-block:: python
+
+   from leonardo_toolset import FUSE_illu
+
+.. autoclass:: leonardo_toolset.FUSE_illu
+   :members: train, train_with_boundary
    :undoc-members:
-   :show-inheritance:
+   :show-inheritance: False
