@@ -1,30 +1,18 @@
 # Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+import os
+import sys
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+# -- Path setup ---------------------------------------------------
+sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../leonardo_toolset"))
 
-
-# -- Project information -----------------------------------------------------
-
+# -- Project information ------------------------------------------
 project = "Leonardo"
 copyright = "2024, Yu Liu"
-author = "yu liu"
+author = "Yu Liu"
 
-
-# -- General configuration ---------------------------------------------------
-# -- General configuration
-
+# -- General configuration ----------------------------------------
 extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
@@ -35,39 +23,67 @@ extensions = [
     "sphinx_copybutton",
     "sphinxcontrib.video",
     "sphinx_togglebutton",
+    "sphinx.ext.napoleon",
 ]
 
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# autodoc & napoleon settings
+autoclass_content = "init"
+autodoc_typehints = "description"
+add_module_names = False
+autosummary_generate = True
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+
+# -- Intersphinx -------------------------------------------------
 intersphinx_mapping = {
-    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
-    "python": ("https://docs.python.org/3/", None),
+    "python": ("https://docs.python.org/3", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
 intersphinx_disabled_domains = ["std"]
 
-templates_path = ["_templates"]
+# -- HTML output -------------------------------------------------
+html_theme = "pydata_sphinx_theme"
+pygments_style = "sphinx"
+pygments_dark_style = "monokai"
 
-# -- Options for EPUB output
+html_theme_options = {
+    "navigation_depth": 4,
+    "show_prev_next": False,
+    "show_toc_level": 2,
+    "collapse_navigation": True,
+    "navigation_with_keys": True,
+}
+
+html_context = {
+    "display_github": True,
+    "github_user": "yuliu96",
+    "github_repo": "leonardo-rtd",
+    "github_version": "main",
+    "conf_py_path": "/docs/",
+}
+
+html_show_sphinx = False
+
+# -- EPUB output -------------------------------------------------
 epub_show_urls = "footnote"
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-# -- Options for HTML output -------------------------------------------------
+# -- Hide 'Bases: object' via monkey patch -----------------------
+def patched_add_directive_header(self, sig):
+    if self.doc_as_attr:
+        return
+    sourcename = self.get_sourcename()
+    self.add_line(f".. class:: {self.object_name}{sig}", sourcename)
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-pygments_style = "sphinx"
 
-html_theme = "sphinx_rtd_theme"
-html_theme_options = {"navigation_depth": 4}
-html_show_sphinx = False
-html_context = {
-    "display_github": True,  # Integrate GitHub
-    "github_user": "yuliu96",  # Username
-    "github_repo": "leonardo-rtd",  # Repo name
-    "github_version": "main",  # Version
-    "conf_py_path": "/docs/",  # Path in the checkout to the docs root
-}
+def apply_patch(app):
+    from sphinx.ext.autodoc import ClassDocumenter
+
+    ClassDocumenter.add_directive_header = patched_add_directive_header
+
+
+def setup(app):
+    app.connect("builder-inited", apply_patch)

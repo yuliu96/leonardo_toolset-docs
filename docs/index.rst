@@ -31,7 +31,6 @@ Preprint is available `here <https://doi.org/10.21203/rs.3.rs-5853941/v1>`_.
 .. toctree::
    :caption: General
    :maxdepth: 2
-   :hidden:
 
    installation
    tutorials
@@ -40,4 +39,3 @@ Preprint is available `here <https://doi.org/10.21203/rs.3.rs-5853941/v1>`_.
 .. |Docs| image:: https://img.shields.io/readthedocs/basicpy
     :target: https://basicpy.readthedocs.io/en/latest/
     :alt: Documentation
-
