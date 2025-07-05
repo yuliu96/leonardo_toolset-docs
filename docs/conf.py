@@ -83,8 +83,10 @@ autodoc_mock_imports = [
     "skimage",
     "cv2",
     "matplotlib",
-    "numpy",
     "dask",
     "pyntcloud",
     "natsort",
+    "ptwt",
+    # "numpy",   <- ❌ REMOVE
+    # "pywt",    <- ❌ REMOVE
 ]
