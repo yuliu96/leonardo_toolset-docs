@@ -53,9 +53,10 @@ html_theme_options = {
     "navigation_depth": 4,
     "show_prev_next": False,
     "show_toc_level": 2,
-    "collapse_navigation": True,
-    "navigation_with_keys": True,
+    "secondary_sidebar_items": ["page-toc"],
+    # 不要 指定 navbar_start、navbar_center、navbar_end
 }
+
 
 html_context = {
     "display_github": True,
