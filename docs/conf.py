@@ -95,4 +95,5 @@ autodoc_mock_imports = [
     "bioio_ome_tiff",
     "bioio_tifffile",
     "asciitree",
+    "numpy",
 ]
