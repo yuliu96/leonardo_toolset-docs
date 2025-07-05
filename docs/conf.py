@@ -88,7 +88,7 @@ autodoc_mock_imports = [
     "natsort",
     "ptwt",
     "SimpleITK",
-    "antspyx",
+    "ants",
     "jax",
     "jaxwt",
     "dm_haiku",
