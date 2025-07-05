@@ -1,6 +1,9 @@
 API reference
 ===============
 
+Basic Tutorials
+----------------
+
 .. toctree::
    :maxdepth: 1
    :caption: Modules:
