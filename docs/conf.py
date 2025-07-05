@@ -107,4 +107,5 @@ autodoc_mock_imports = [
     "jinja2",
     "pathlib",
     "re",
+    "colour",
 ]
