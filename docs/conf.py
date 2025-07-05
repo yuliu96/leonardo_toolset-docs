@@ -98,4 +98,9 @@ autodoc_mock_imports = [
     "numpy",
     "tqdm",
     "pywt",
+    "scipy",
+    "copy",
+    "gc",
+    "shutil",
+    "traceback",
 ]
