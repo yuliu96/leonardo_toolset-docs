@@ -49,12 +49,19 @@ except Exception as e:
 
 
 class DeStripe:
+    """
+    Main class for Leonardo-DeStripe.
+
+    This class handles the workflow for stripe removal in data (single volume
+    or multiple ones with opposite illumination or detection simultaneously).
+    """
+
     def __init__(
         self,
         resample_ratio: int = 3,
         guided_upsample_kernel: int = 49,
         hessian_kernel_sigma: float = 1,
-        lambda_masking_mse: int = 1,
+        lambda_masking_mse: float = 1,
         lambda_tv: float = 1,
         lambda_hessian: float = 1,
         inc: int = 16,
@@ -64,6 +71,38 @@ class DeStripe:
         backend: str = "jax",
         device: str = None,
     ):
+        """
+        Initialize the DeStripe class with destriping and training parameters.
+
+        Args:
+            resample_ratio : int, optional
+                Downsampling factor along the stripe direction
+                when training the graph neural network.
+
+            guided_upsample_kernel : int, optional
+                Kernel size for guided upsampling.
+
+            hessian_kernel_sigma : float, optional
+                Sigma to define Gaussian Hessian kernel.
+            lambda_masking_mse : float, optional
+                Weight for fidelity term in loss.
+            lambda_tv : float, optional
+                Weight for total variation-based regularization term in loss.
+            lambda_hessian : float, optional
+                Weight for Hessian-based regularization term in loss.
+            inc : int, optional
+                Dimension of the latent space in the graph neural network.
+            n_epochs : int, optional
+                Number of epochs to train the graph neural network.
+            wedge_degree : float, optional
+                Angular coverage of the wedge-shaped mask in Fourier.
+            n_neighbors : int, optional
+                Number of neighbors in the graph neural network.
+            backend : str, optional
+                Backend to use ('jax' or 'torch').
+            device : str, optional
+                Device to use ('cuda', 'cpu').
+        """
         self.train_params = {
             "gf_kernel_size": guided_upsample_kernel,
             "n_neighbors": n_neighbors,
@@ -91,7 +130,13 @@ class DeStripe:
     @staticmethod
     def process(params: dict) -> None:
         """
-        Interface function for napari plugin.
+        Interface function for napari plugin. Instantiates a DeStripe model and runs training.
+
+        Args:
+            params (dict): Dictionary of parameters for model initialization and training.
+
+        Returns:
+            np.ndarray: The destriped output image.
         """
         model = DeStripe(
             resample_ratio=params["resample_ratio"],
@@ -130,6 +175,24 @@ class DeStripe:
         z: int = 1,
         backend: str = "jax",
     ):
+        """
+        Train the destriping model on a single image slice.
+
+        Args:
+            GuidedFilterHRModel: Guided upsampling model.
+            update_method: Update method for optimization.
+            sample_params (dict): Sample-specific parameters.
+            train_params (dict): Training parameters.
+            X (np.ndarray): Input image slice.
+            mask (np.ndarray): Mask for the slice.
+            fusion_mask (np.ndarray): Fusion mask for the slice.
+            s_ (int): Current slice index.
+            z (int): Total number of slices.
+            backend (str): Backend to use ('jax' or 'torch').
+
+        Returns:
+            tuple: (output image, target image)
+        """
         rng_seq = jax.random.PRNGKey(0) if backend == "jax" else None
         md = (
             sample_params["md"]
@@ -272,6 +335,27 @@ class DeStripe:
         display_angle_orientation: bool = True,
         illu_orient: str = None,
     ):
+        """
+        Train the destriping model on a full 3D array (volume).
+
+        Args:
+            X (np.ndarray or dask.array): Input image volume.
+            is_vertical (bool): Whether the stripes are vertical.
+            angle_offset_dict (dict): Dictionary of angle offsets.
+            mask (np.ndarray or dask.array): Mask for the volume.
+            train_params (dict): Training parameters.
+            fusion_mask (np.ndarray or dask.array): Fusion mask for the volume.
+            display (bool): Whether to display intermediate results.
+            device (str): Device to use.
+            non_positive (bool): Whether to allow non-positive values.
+            backend (str): Backend to use ('jax' or 'torch').
+            flag_compose (bool): Whether to compose multiple inputs.
+            display_angle_orientation (bool): Whether to display angle orientation.
+            illu_orient (str): Illumination orientation.
+
+        Returns:
+            np.ndarray: The destriped output volume.
+        """
         if train_params is None:
             train_params = destripe_train_params()
         else:
@@ -489,7 +573,23 @@ class DeStripe:
         non_positive: bool = False,
         **kwargs,
     ):
+        """
+        Main training workflow for destriping and fusion.
 
+        Args:
+            is_vertical (bool): Whether the stripes are vertical.
+            x (str or np.ndarray or dask.array): Input image or path.
+            mask (str or np.ndarray or dask.array): Mask for the image.
+            fusion_mask (np.ndarray or dask.array): Fusion mask for the image.
+            illu_orient (str): Illumination orientation.
+            display (bool): Whether to display intermediate results.
+            display_angle_orientation (bool): Whether to display angle orientation.
+            non_positive (bool): Whether to allow non-positive values.
+            **kwargs: Additional keyword arguments for advanced workflows.
+
+        Returns:
+            np.ndarray: The destriped output image or volume.
+        """
         if x is not None:
             if (illu_orient is None) and (is_vertical is None):
                 print("is_vertical and illu_orient cannot be missing at the same time.")

@@ -12,7 +12,7 @@ from leonardo_toolset.destripe import DeStripe  # noqa: F401
 from leonardo_toolset.fusion import FUSE_det  # noqa: F401
 from leonardo_toolset.fusion import FUSE_illu  # noqa: F401
 
-__all__ = ["FUSE_det"]
+__all__ = ["FUSE_det", "FUSE_illu", "DeStripe"]
 
 
 def get_module_version():

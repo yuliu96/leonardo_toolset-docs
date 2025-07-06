@@ -34,7 +34,7 @@ extensions = [
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # autodoc & napoleon settings
-autoclass_content = "init"
+autoclass_content = "both"
 autodoc_typehints = "description"
 add_module_names = False
 autosummary_generate = True
