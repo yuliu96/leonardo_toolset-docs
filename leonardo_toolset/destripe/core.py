@@ -574,6 +574,7 @@ class DeStripe:
         mask: Union[str, np.ndarray, Array] = None,
         fusion_mask: Union[np.ndarray, Array] = None,
         illu_orient: str = None,
+        angle_offset: list[float] = None,
         display: bool = False,
         display_angle_orientation: bool = False,
         non_positive: bool = False,
@@ -587,19 +588,28 @@ class DeStripe:
             is_vertical : bool
                 Whether the stripes are vertical.
             x : dask.array.Array | np.ndarray | str
-                Input image or path.
+                Input image array or path.
             mask : dask.array.Array | np.ndarray | str
-                Mask for the image.
+                Optional mask for the image. Enables human-guided intervention during destriping.
+                In regions where the mask equals 1, the graph neural network will avoid modifying
+                the underlying structures. This is useful when users have prior knowledge about
+                specific regions that should remain untouched (e.g., important anatomical features).
+                If not provided, the network will operate on the entire image.
             fusion_mask : np.ndarray or dask.array
-                Fusion mask for the image.
-            illu_orient : str
-                Illumination orientation.
+                Fusion mask for the input image. This is needed in the Leonardo-DeStripe-Fuse mode, in which
+                multiple images with opposite illumination or detection are jointly destriped. To use this
+                more powerful mode, first run Leonardo-Fuse with ``save_separate_results=True`` to generate
+                the necessary intermediate results. The location of the generated fusion mask can then be found
+                in the YAML metadata under ``save_path/save_folder``. For details about the Leonardo-DeStripe-Fuse
+                mode, please refer to the Note below.
+            illu_orient : str, optional
+                Illumination orientation in the image space of ``x``. More information please refer to the Note below
             display : bool
                 Whether to display destriped results in matplotlib in real-time.
             display_angle_orientation : bool
                 Whether to display check for angle orientation.
             non_positive : bool
-                Whether to allow non-positive values.
+                Whether the stripes are non-positive only.
             **kwargs
                 Additional keyword arguments for advanced workflows.
 
@@ -623,7 +633,6 @@ class DeStripe:
             corresponding offsets ``angle_offset_0``, ``angle_offset_1``, … via ``**kwargs``.
             These will be jointly destriped and fused.
             This is the advanced Leonardo-DeStripe-Fuse mode.
-
 
         .. note::
             Although Leonardo-DeSrtripe(-Fuse) is mainly empowered by a graph a neural network,
@@ -690,10 +699,13 @@ class DeStripe:
                     X_data.append(X_handle.get_image_dask_data("ZYX", T=0, C=0))
             X = da.stack(X_data, 1)
 
-        angle_offset_dict = {}
-        for key, item in kwargs.items():
-            if key.startswith("angle_offset"):
-                angle_offset_dict.update({key: item})
+        if flag_compose:
+            angle_offset_dict = {}
+            for key, item in kwargs.items():
+                if key.startswith("angle_offset"):
+                    angle_offset_dict.update({key: item})
+        else:
+            angle_offset_dict = {"angle_offset": angle_offset}
 
         z, _, m, n = X.shape
 
