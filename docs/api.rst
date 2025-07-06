@@ -1,8 +1,7 @@
 API reference
 ===============
 
-Basic Tutorials
-----------------
+This section provides the API-level documentation for the Leonardo toolset.
 
 .. toctree::
    :maxdepth: 1
