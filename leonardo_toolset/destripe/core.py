@@ -8,6 +8,8 @@ import torch
 import tqdm
 from bioio import BioImage
 
+from dask.array import Array
+
 from leonardo_toolset.destripe.guided_filter_upsample import GuidedUpsample
 from leonardo_toolset.destripe.loss_term_torch import Loss_torch
 from leonardo_toolset.destripe.network_torch import DeStripeModel_torch
@@ -102,6 +104,10 @@ class DeStripe:
                 Backend to use ('jax' or 'torch').
             device : str, optional
                 Device to use ('cuda', 'cpu').
+        Note:
+            The `backend` parameter is set to 'jax' by default which is in general faster than 'torch',
+            but if JAX is not available in the environment, it will automatically switch to 'torch'.
+            The `device` parameter defaults to 'cuda' if available, otherwise 'cpu'.
         """
         self.train_params = {
             "gf_kernel_size": guided_upsample_kernel,
@@ -564,9 +570,9 @@ class DeStripe:
     def train(
         self,
         is_vertical: bool = None,
-        x: Union[str, np.ndarray, da.core.Array] = None,
-        mask: Union[str, np.ndarray, da.core.Array] = None,
-        fusion_mask: Union[da.core.Array, np.ndarray] = None,
+        x: Union[str, np.ndarray, Array] = None,
+        mask: Union[str, np.ndarray, Array] = None,
+        fusion_mask: Union[np.ndarray, Array] = None,
         illu_orient: str = None,
         display: bool = False,
         display_angle_orientation: bool = False,
@@ -574,22 +580,52 @@ class DeStripe:
         **kwargs,
     ):
         """
-        Main training workflow for destriping and fusion.
+        Main training workflow for Leonardo-DeStripe
+        (also for Leonardo-DeStripe-Fuse).
 
         Args:
-            is_vertical (bool): Whether the stripes are vertical.
-            x (str or np.ndarray or dask.array): Input image or path.
-            mask (str or np.ndarray or dask.array): Mask for the image.
-            fusion_mask (np.ndarray or dask.array): Fusion mask for the image.
-            illu_orient (str): Illumination orientation.
-            display (bool): Whether to display intermediate results.
-            display_angle_orientation (bool): Whether to display angle orientation.
-            non_positive (bool): Whether to allow non-positive values.
-            **kwargs: Additional keyword arguments for advanced workflows.
+            is_vertical : bool
+                Whether the stripes are vertical.
+            x : dask.array.Array | np.ndarray | str
+                Input image or path.
+            mask : dask.array.Array | np.ndarray | str
+                Mask for the image.
+            fusion_mask : np.ndarray or dask.array
+                Fusion mask for the image.
+            illu_orient : str
+                Illumination orientation.
+            display : bool
+                Whether to display destriped results in matplotlib in real-time.
+            display_angle_orientation : bool
+                Whether to display check for angle orientation.
+            non_positive : bool
+                Whether to allow non-positive values.
+            **kwargs
+                Additional keyword arguments for advanced workflows.
 
         Returns:
             np.ndarray: The destriped output image or volume.
+
+        .. note::
+
+            This function supports two modes:
+
+            1. **Leonardo-DeStripe** (default):
+            Provide a single input ``x`` and a corresponding illumination angle offset
+            as ``angle_offset`` via ``**kwargs``. This is the standard Leonardo-DeStripe mode.
+
+            .. important::
+                If ``x`` is given, you **must** also provide ``angle_offset`` via ``**kwargs``.
+
+            2. **Compose (multi-view) destriping**:
+            For light-sheet datasets with dual-sided illumination, detection, or both,
+            you can instead provide multiple inputs ``x_0``, ``x_1``, … and
+            corresponding offsets ``angle_offset_0``, ``angle_offset_1``, … via ``**kwargs``.
+            These will be jointly destriped and fused.
+            This is the advanced Leonardo-DeStripe-Fuse mode.
+
         """
+
         if x is not None:
             if (illu_orient is None) and (is_vertical is None):
                 print("is_vertical and illu_orient cannot be missing at the same time.")
