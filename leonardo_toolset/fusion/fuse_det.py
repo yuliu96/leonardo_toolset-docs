@@ -175,6 +175,8 @@ class FUSE_det:
         else:
             self.registration_params = define_registration_params(**registration_params)
 
+        print("[Leonardo-Fuse] Backend: PyTorch | Device: {}".format(str(device)))
+
     def train_from_params(
         self,
         params: dict,

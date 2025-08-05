@@ -36,6 +36,6 @@ Preprint is available `here <https://doi.org/10.21203/rs.3.rs-5853941/v1>`_.
    tutorials
    api
 
-.. |Docs| image:: https://img.shields.io/readthedocs/basicpy
-    :target: https://basicpy.readthedocs.io/en/latest/
+.. |Docs| image:: https://img.shields.io/readthedocs/leonardo-toolset
+    :target: https://leonardo-toolset.readthedocs.io/en/latest/
     :alt: Documentation

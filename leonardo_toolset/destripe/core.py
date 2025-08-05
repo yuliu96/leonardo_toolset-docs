@@ -130,6 +130,18 @@ class DeStripe:
             if self.backend == "jax":
                 print("jax not available on the current env, use torch instead.")
             self.backend = "torch"
+        if self.backend == "jax":
+            print(
+                "[Leonardo-DeStripe] Backend: JAX | Device: {}".format(
+                    jax.default_backend()
+                )
+            )
+        else:
+            print(
+                "[Leonardo-DeStripe] Backend: PyTorch | Device: {}".format(
+                    str(self.device)
+                )
+            )
 
     # ## INTERFACE ###
     # # THIS FUNCTION IS CALLED FROM NAPARI. DO NOT USE IT DIRECTLY.

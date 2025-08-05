@@ -107,6 +107,8 @@ class FUSE_illu:
             .to(self.train_params["device"])
         )
 
+        print("[Leonardo-Fuse] Backend: PyTorch | Device: {}".format(str(device)))
+
     def train_from_params(self, params: dict):
         """
         Train the fusion model using a parameter dictionary. Developped for the napari plugin.
