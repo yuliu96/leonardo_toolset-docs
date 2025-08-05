@@ -443,6 +443,11 @@ class FUSE_det:
             - **Big data mode:** This mode is automatically enabled when `z_downsample_ratio > 1` or `xy_downsample_ratio > 1`.
               It is currently only supported when `ventral_det_data` and `dorsal_det_data` are provided.
               Four-view illumination fusion is not yet supported in big data mode.
+
+            - **File compatibility:** `.tif` files are reliably supported.
+              Some `.ome.tif` files may cause issues depending on your `bioio` version.
+              In such cases, please load the file manually and pass a `np.ndarray` instead.
+
         """
 
         if not os.path.exists(save_path):

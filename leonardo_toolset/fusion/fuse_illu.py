@@ -240,6 +240,10 @@ class FUSE_illu:
         Notes:
             - **Input format:** All input volumes must be in (Z, X, Y) format. Inputs must not contain channel dimensions.
               If your data includes channels (e.g., shape (Z, X, Y, C) or (T, C, Z, X, Y)), please extract the relevant channel first.
+
+            - **File compatibility:** `.tif` files are reliably supported.
+              Some `.ome.tif` files may cause issues depending on your `bioio` version.
+              In such cases, please load the file manually and pass a `np.ndarray` instead.
         """
         if not os.path.exists(save_path):
             print("saving path does not exist.")
