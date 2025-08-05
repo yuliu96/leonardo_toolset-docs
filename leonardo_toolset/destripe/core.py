@@ -345,10 +345,10 @@ class DeStripe:
         Train the destriping model on a full 3D array (volume).
 
         Args:
-            X (np.ndarray or dask.array): Input image volume.
+            X (np.ndarray or dask.array): Input 3D volume in (Z, Y, X).
             is_vertical (bool): Whether the stripes are vertical.
             angle_offset_dict (dict): Dictionary of angle offsets.
-            mask (np.ndarray or dask.array): Mask for the volume.
+            mask (np.ndarray or dask.array): Mask for the volume. Must be the same shape as `X`.
             train_params (dict): Training parameters.
             fusion_mask (np.ndarray or dask.array): Fusion mask for the volume.
             display (bool): Whether to display intermediate results.
