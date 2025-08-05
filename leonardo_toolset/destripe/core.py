@@ -104,10 +104,10 @@ class DeStripe:
                 Backend to use ('jax' or 'torch').
             device : str, optional
                 Device to use ('cuda', 'cpu').
-        Note:
-            The `backend` parameter is set to 'jax' by default which is in general faster than 'torch',
-            but if JAX is not available in the environment, it will automatically switch to 'torch'.
-            The `device` parameter defaults to 'cuda' if available, otherwise 'cpu'.
+
+        Notes:
+            - **Input format:** All input volumes must be in (Z, X, Y) format. Inputs must not contain channel dimensions.
+              If your data includes channels (e.g., shape (Z, X, Y, C) or (T, C, Z, X, Y)), please extract the relevant channel first.
         """
         self.train_params = {
             "gf_kernel_size": guided_upsample_kernel,
