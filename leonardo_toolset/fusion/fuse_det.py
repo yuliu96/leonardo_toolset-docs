@@ -461,9 +461,7 @@ class FUSE_det:
         args_dict = {k: v for k, v in locals().items() if k in allowed_keys}
         args_dict.update({"train_params": self.train_params})
         args_dict.update({"registration_params": self.registration_params})
-        args_dict.update(
-            {"file_name": os.path.join(save_path, save_folder, "det_info.yaml")}
-        )
+        args_dict.update({"file_name": "det_info.yaml"})
         yaml_path = parse_yaml_det(**args_dict)
 
         if (xy_downsample_ratio is None) and (z_downsample_ratio is None):
