@@ -12,7 +12,7 @@ Leonardo
 
 :mod:`Leonardo` is an AI-empowered image processing toolbox that is able to resolve sample-induced 
 aberrations for light-sheet fluorescence microscopy: (1) :mod:`Leonardo-DeStripe` removes the stripe artifacts caused by light absorption; 
-(2) :mod:`Leonardo-FUSE` reconstructs one single high-quality image from dual-sided illumination and/or dual-sided detection while 
+(2) :mod:`Leonardo-Fuse` reconstructs one single high-quality image from dual-sided illumination and/or dual-sided detection while 
 eliminating optical distortions (ghosts) caused by light refraction.
 
 .. image:: outline.jpg

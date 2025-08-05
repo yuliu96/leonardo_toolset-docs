@@ -246,16 +246,12 @@ class FUSE_illu:
             return
         if not os.path.exists(os.path.join(save_path, save_folder)):
             os.makedirs(os.path.join(save_path, save_folder))
-        allowed_keys = parse_yaml_illu.__code__.co_varnames  # or手动列出
+        allowed_keys = parse_yaml_illu.__code__.co_varnames
         args_dict = {k: v for k, v in locals().items() if k in allowed_keys}
         args_dict.update({"train_params": self.train_params})
         args_dict.update(
             {
-                "file_name": os.path.join(
-                    save_path,
-                    save_folder,
-                    f"{camera_position+'_' if len(camera_position) != 0 else ''}illu_info.yaml",
-                )
+                "file_name": f"{camera_position+'_' if len(camera_position) != 0 else ''}illu_info.yaml",
             }
         )
         yaml_path = parse_yaml_illu(**args_dict)

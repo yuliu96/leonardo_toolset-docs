@@ -104,10 +104,6 @@ class DeStripe:
                 Backend to use ('jax' or 'torch').
             device : str, optional
                 Device to use ('cuda', 'cpu').
-
-        Notes:
-            - **Input format:** All input volumes must be in (Z, X, Y) format. Inputs must not contain channel dimensions.
-              If your data includes channels (e.g., shape (Z, X, Y, C) or (T, C, Z, X, Y)), please extract the relevant channel first.
         """
         self.train_params = {
             "gf_kernel_size": guided_upsample_kernel,
@@ -660,6 +656,10 @@ class DeStripe:
 
             - In **Leonardo-DeStripe-Fuse mode**, provide multiple orientations via
               ``illu_orient_0``, ``illu_orient_1``, … inside ``**kwargs``.
+
+        Notes:
+            - **Input format:** All input volumes must be in (Z, X, Y) format. Inputs must not contain channel dimensions.
+              If your data includes channels (e.g., shape (Z, X, Y, C) or (T, C, Z, X, Y)), please extract the relevant channel first.
 
         """
 
