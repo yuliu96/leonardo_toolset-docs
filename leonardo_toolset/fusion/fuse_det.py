@@ -361,10 +361,6 @@ class FUSE_det:
             - For light sheet systems with **top–bottom illumination** (in the image space), use `top_illu_*` and `bottom_illu_*`.
             - For systems with **left–right illumination** (in the image space), use `left_illu_*` and `right_illu_*`.
 
-        Note:
-            There is big data mode with `FUSE_det` and can be enabled if either `z_downsample_ratio > 1` or `xy_downsample_ratio > 1`.
-            Currently, this mode is **only supported when `ventral_det_data` and `dorsal_det_data` are provided**.
-
         Args:
             require_registration : bool
                 Whether registration is needed.
@@ -427,6 +423,14 @@ class FUSE_det:
 
         Returns:
             np.ndarray: The fused output image.
+
+        Notes:
+            - **Input format:** All input volumes must be 3D arrays in (Z, Y, X) format. Inputs must not contain channel dimensions.
+              If your data includes channels (e.g., shape (Z, Y, X, C) or (T, C, Z, Y, X)), please extract the relevant channel first.
+
+            - **Big data mode:** This mode is automatically enabled when `z_downsample_ratio > 1` or `xy_downsample_ratio > 1`.
+              It is currently only supported when `ventral_det_data` and `dorsal_det_data` are provided.
+              Four-view illumination fusion is not yet supported in big data mode.
         """
 
         if not os.path.exists(save_path):
