@@ -48,6 +48,7 @@ try:
 except Exception as e:
     print(f"Error: {e}. process without jax")
     jax_flag = 0
+from torch.nn import functional as F
 
 
 class DeStripe:
@@ -309,9 +310,28 @@ class DeStripe:
         )
 
         if len(sample_params["illu_orient"]) > 0:
+            if backend == "jax":
+                Y_GNN = np.asarray(
+                    jax.image.resize(
+                        Y_raw,
+                        Y_GU.shape,
+                        method="bilinear",
+                    )
+                )
+            else:
+                Y_GNN = np.asarray(
+                    F.interpolate(
+                        Y_raw,
+                        Y_GU.shape[-2:],
+                        mode="bilinear",
+                        align_corners=True,
+                    )
+                )
+
             Y = post_process_module(
                 np.asarray(X) if backend == "jax" else X.cpu().data.numpy(),
                 Y_GU,
+                Y_GNN,
                 angle_offset_individual=sample_params["angle_offset_individual"],
                 fusion_mask=(
                     np.asarray(fusion_mask)
@@ -319,6 +339,8 @@ class DeStripe:
                     else fusion_mask.cpu().data.numpy()
                 ),
                 illu_orient=sample_params["illu_orient"],
+                non_positive=sample_params["non_positive"],
+                allow_stripe_deviation=sample_params["allow_stripe_deviation"],
             )
         else:
             Y = 10**Y_GU
@@ -339,6 +361,7 @@ class DeStripe:
         display: bool = False,
         device: str = "cpu",
         non_positive: bool = False,
+        allow_stripe_deviation: bool = False,
         backend: str = "jax",
         flag_compose: bool = False,
         display_angle_orientation: bool = True,
@@ -403,6 +426,7 @@ class DeStripe:
             "angle_offset_individual": angle_offset_individual,
             "r": r,
             "non_positive": non_positive,
+            "allow_stripe_deviation": allow_stripe_deviation,
             "illu_orient": illu_orient_new,
         }
         z, _, m, n = X.shape
@@ -584,6 +608,7 @@ class DeStripe:
         display: bool = False,
         display_angle_orientation: bool = False,
         non_positive: bool = False,
+        allow_stripe_deviation: bool = False,
         **kwargs,
     ):
         """
@@ -783,6 +808,7 @@ class DeStripe:
             display=display,
             device=self.device,
             non_positive=non_positive,
+            allow_stripe_deviation=allow_stripe_deviation,
             backend=self.backend,
             flag_compose=flag_compose,
             display_angle_orientation=display_angle_orientation,
