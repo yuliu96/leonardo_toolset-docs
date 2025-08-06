@@ -209,14 +209,10 @@ class DeStripe:
         """
         rng_seq = jax.random.PRNGKey(0) if backend == "jax" else None
         md = (
-            sample_params["md"]
-            if sample_params["is_vertical"]
-            else sample_params["nd"]  # noqa: E501
+            sample_params["md"] if sample_params["is_vertical"] else sample_params["nd"]
         )
         nd = (
-            sample_params["nd"]
-            if sample_params["is_vertical"]
-            else sample_params["md"]  # noqa: E501
+            sample_params["nd"] if sample_params["is_vertical"] else sample_params["md"]
         )
         target = (X * fusion_mask).sum(1, keepdims=True)
         targetd = target[:, :, :: sample_params["r"], :]
@@ -301,7 +297,6 @@ class DeStripe:
                 targets_f,
                 targetd_bilinear,
             )
-
         Y_GU = GuidedFilterHRModel(
             Y_raw,
             X,
@@ -717,13 +712,10 @@ class DeStripe:
                     X_data.append(X_handle.get_image_dask_data("ZYX", T=0, C=0))
             X = da.stack(X_data, 1)
 
-        if flag_compose:
-            angle_offset_dict = {}
-            for key, item in kwargs.items():
-                if key.startswith("angle_offset"):
-                    angle_offset_dict.update({key: item})
-        else:
-            angle_offset_dict = {"angle_offset": angle_offset}
+        angle_offset_dict = {}
+        for key, item in kwargs.items():
+            if key.startswith("angle_offset"):
+                angle_offset_dict.update({key: item})
 
         z, _, m, n = X.shape
 
