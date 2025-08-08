@@ -55,11 +55,14 @@ html_theme = "pydata_sphinx_theme"
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
 
+
 html_theme_options = {
-    "navigation_depth": 4,
-    "show_prev_next": False,
-    "show_toc_level": 2,
-    "secondary_sidebar_items": ["page-toc"],
+    # ...
+    "navbar_start": ["navbar-logo"],
+    "navbar_center": ["navbar-nav"],
+    "navbar_end": ["navbar-icon-links.html", "search-field.html"],
+    "navbar_persistent": ["search-button"],
+    # ...
 }
 
 
