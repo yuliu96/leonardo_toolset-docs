@@ -89,13 +89,17 @@ html_theme_options = {
 }
 
 
+# html_sidebars = {"pagename": []}
+html_sidebars = {"**": []}
+
 html_context = {
     "display_github": True,
-    "github_user": "yuliu96",
-    "github_repo": "leonardo-rtd",
+    "github_user": "peng-lab",
+    "github_repo": "leonardo_toolset",
     "github_version": "main",
     "conf_py_path": "/docs/",
 }
+
 
 html_show_sphinx = False
 epub_show_urls = "footnote"
@@ -136,4 +140,9 @@ autodoc_mock_imports = [
     "re",
     "colour",
     "haiku",
+    "torchvision",
 ]
+
+rst_prolog = """
+.. |Docs| replace:: `Docs <https://github.com/peng-lab/leonardo_toolset>`__
+"""
