@@ -31,36 +31,42 @@ def generate_mask_dict_jax(
         targetd_bilinear, (1, 1, md, nd // sample_params["r"]), "bilinear"
     )
 
-    mask_tv = jnp.arctan2(
-        jnp.abs(
-            jax.lax.conv_general_dilated(
-                jnp.pad(y, p_tv, "reflect"), Dx, (1, 1), "VALID"
-            )
-        ),
-        jnp.abs(
-            jax.lax.conv_general_dilated(
-                jnp.pad(y, p_tv, "reflect"), Dy, (1, 1), "VALID"
-            )
-        ),
+    mask_tv = (
+        jnp.arctan2(
+            jnp.abs(
+                jax.lax.conv_general_dilated(
+                    jnp.pad(y, p_tv, "reflect"), Dx, (1, 1), "VALID"
+                )
+            ),
+            jnp.abs(
+                jax.lax.conv_general_dilated(
+                    jnp.pad(y, p_tv, "reflect"), Dy, (1, 1), "VALID"
+                )
+            ),
+        )
+        ** 10
     )
 
-    mask_hessian = jnp.arctan2(
-        jnp.abs(
-            jax.lax.conv_general_dilated(
-                jnp.pad(y, p_hessian, "reflect"),
-                DGaussxx,
-                (1, 1),
-                "VALID",
-            )
-        ),
-        jnp.abs(
-            jax.lax.conv_general_dilated(
-                jnp.pad(y, p_hessian, "reflect"),
-                DGaussyy,
-                (1, 1),
-                "VALID",
-            )
-        ),
+    mask_hessian = (
+        jnp.arctan2(
+            jnp.abs(
+                jax.lax.conv_general_dilated(
+                    jnp.pad(y, p_hessian, "reflect"),
+                    DGaussxx,
+                    (1, 1),
+                    "VALID",
+                )
+            ),
+            jnp.abs(
+                jax.lax.conv_general_dilated(
+                    jnp.pad(y, p_hessian, "reflect"),
+                    DGaussyy,
+                    (1, 1),
+                    "VALID",
+                )
+            ),
+        )
+        ** 10
     )
 
     mask_valid = jnp.zeros_like(mask_hessian)
