@@ -554,10 +554,10 @@ class Loss_jax:
                 )
             )
 
-        for i in range(lconst):
-            mse = mse + 20 * jnp.sum(jnp.abs(wave_decom_dict[i][1][0]))
-            mse = mse + 20 * jnp.sum(jnp.abs(wave_decom_dict[i][1][1]))
-            mse = mse + 40 * jnp.sum(jnp.abs(wave_decom_dict[i][1][2]))
+        # for i in range(lconst):
+        #     mse = mse + 20 * jnp.sum(jnp.abs(wave_decom_dict[i][1][0]))
+        #     mse = mse + 20 * jnp.sum(jnp.abs(wave_decom_dict[i][1][1]))
+        #     mse = mse + 40 * jnp.sum(jnp.abs(wave_decom_dict[i][1][2]))
 
         outputGNNraw_original, outputGNNraw_original_f = self.non_postive_uint(
             outputGNNraw_original,
