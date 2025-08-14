@@ -737,10 +737,13 @@ class DeStripe:
                     X_data.append(X_handle.get_image_dask_data("ZYX", T=0, C=0))
             X = da.stack(X_data, 1)
 
-        angle_offset_dict = {}
-        for key, item in kwargs.items():
-            if key.startswith("angle_offset"):
-                angle_offset_dict.update({key: item})
+        if flag_compose:
+            angle_offset_dict = {}
+            for key, item in kwargs.items():
+                if key.startswith("angle_offset"):
+                    angle_offset_dict.update({key: item})
+        else:
+            angle_offset_dict = {"angle_offset": angle_offset}
 
         z, _, m, n = X.shape
 
