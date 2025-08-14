@@ -846,7 +846,8 @@ class DeStripe:
             print(e)
         finally:
             try:
-                os.remove(os.path.join(os.getcwd(), "fusion_mask.dat"))
+                if flag_compose:
+                    os.remove(os.path.join(os.getcwd(), "fusion_mask.dat"))
             except Exception as e:
                 traceback.print_exc()
                 print(e)
