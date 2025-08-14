@@ -19,6 +19,9 @@ from leonardo_toolset.destripe.utils import (
     prepare_aux,
     transform_cmplx_model,
     save_memmap_from_images,
+    ensure_abs_tif,
+    open_or_init_mm,
+    finalize_save,
 )
 from leonardo_toolset.destripe.utils_torch import (
     generate_mask_dict_torch,
@@ -49,7 +52,10 @@ try:
 except Exception as e:
     print(f"Error: {e}. process without jax")
     jax_flag = 0
+
 from torch.nn import functional as F
+import tempfile
+import gc
 
 
 class DeStripe:
@@ -367,6 +373,7 @@ class DeStripe:
         flag_compose: bool = False,
         display_angle_orientation: bool = True,
         illu_orient: str = None,
+        save_path: str = None,
     ):
         """
         Train the destriping model on a full 3D array (volume).
@@ -392,6 +399,7 @@ class DeStripe:
         Returns:
             np.ndarray: The destriped output volume.
         """
+
         if train_params is None:
             train_params = destripe_train_params()
         else:
@@ -431,8 +439,18 @@ class DeStripe:
             "illu_orient": illu_orient_new,
         }
         z, _, m, n = X.shape
-        result = copy.deepcopy(X[:, 0, :, :])
-        mean = np.zeros(z)
+        _, _, m_0, n_0 = X.shape
+        if save_path is not None:
+            base, stem = ensure_abs_tif(save_path)
+            result_mm, done_mm = open_or_init_mm(base, stem, z, m, n)
+        else:
+            result_mm = np.zeros((z, m, n), dtype=np.uint16)
+            done_mm = np.zeros(z, dtype=np.uint8)
+
+        mean = np.zeros(z, dtype=np.float64)
+        MIN = np.zeros(z, dtype=np.float64)
+        MAX = np.zeros(z, dtype=np.float64)
+
         if sample_params["is_vertical"]:
             n = n if n % 2 == 1 else n - 1
             m = m // train_params["resample_ratio"]
@@ -471,7 +489,9 @@ class DeStripe:
         if display_angle_orientation:
             print("Please check the orientation of the stripes...")
             fig, ax = plt.subplots(
-                1, 2 if not flag_compose else len(angle_offset_individual), dpi=200
+                1,
+                2 if not flag_compose else len(angle_offset_individual),
+                dpi=200,
             )
             if not flag_compose:
                 ax[1].set_visible(False)
@@ -587,19 +607,37 @@ class DeStripe:
                 ax.set_title("input", fontsize=8, pad=1)
                 plt.axis("off")
                 plt.show()
-            result[i:, : Y.shape[0], : Y.shape[1]] = np.clip(Y, 0, 65535).astype(
-                np.uint16
+
+            out_slice = np.clip(Y, 0, 65535).astype(np.uint16)
+            out_slice = np.pad(
+                out_slice,
+                ((0, m_0 - m), (0, n_0 - n)),
+                mode="edge",
             )
-            mean[i] = np.mean(result[i] + 0.1)
+
+            result_mm[i] = out_slice
+            MIN[i] = out_slice.min()
+            MAX[i] = out_slice.max()
+            mean[i] = np.mean(out_slice + 0.1)
+            done_mm[i] = 1
+
+            getattr(result_mm, "flush", lambda: None)()
+            getattr(done_mm, "flush", lambda: None)()
 
         if (z != 1) and (not sample_params["non_positive"]):
             print("global correcting...")
-            result = global_correction(mean, result)
+            global_correction(
+                mean,
+                result_mm,
+                MIN,
+                MAX,
+            )
         print("Done")
-        return result
+        return result_mm
 
     def train(
         self,
+        save_path: str,
         is_vertical: bool = None,
         x: Union[str, np.ndarray, Array] = None,
         mask: Union[str, np.ndarray, Array] = None,
@@ -686,7 +724,11 @@ class DeStripe:
               Some `.ome.tif` files may cause issues depending on your `bioio` version.
               In such cases, please load the file manually and pass a `np.ndarray` instead.
         """
-
+        if save_path is not None:
+            _ = ensure_abs_tif(save_path)
+            base = os.path.split(save_path)[0]
+        else:
+            base = tempfile.gettempdir()
         if x is not None:
             if (illu_orient is None) and (is_vertical is None):
                 print("is_vertical and illu_orient cannot be missing at the same time.")
@@ -774,7 +816,7 @@ class DeStripe:
                     )
                     fusion_mask = save_memmap_from_images(
                         fusion_mask,
-                        os.path.join(os.getcwd(), "fusion_mask.dat"),
+                        os.path.join(base, "fusion_mask.dat"),
                     )
 
                 elif os.path.isfile(fusion_mask):
@@ -839,6 +881,7 @@ class DeStripe:
                 flag_compose=flag_compose,
                 display_angle_orientation=display_angle_orientation,
                 illu_orient=illu_orient,
+                save_path=save_path,
             )
             return out
         except Exception as e:
@@ -846,6 +889,21 @@ class DeStripe:
             print(e)
         finally:
             try:
-                os.remove(os.path.join(os.getcwd(), "fusion_mask.dat"))
+                del fusion_mask
+            except:
+                pass
+            gc.collect()
+            try:
+                os.remove(os.path.join(base, "fusion_mask.dat"))
+            except:
+                pass
+            try:
+                if save_path is not None:
+                    base, stem = ensure_abs_tif(save_path)
+                    finalize_save(
+                        os.path.join(base, f"{stem}__work.npy"),
+                        os.path.join(base, f"{stem}__done.npy"),
+                        save_path,
+                    )
             except:
                 pass
