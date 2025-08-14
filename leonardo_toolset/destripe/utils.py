@@ -14,6 +14,44 @@ try:
 except Exception as e:
     print(f"Error: {e}. Proceed without jax")
     pass
+import os
+import tqdm
+
+
+def save_memmap_from_images(
+    all_images,
+    save_path,
+):
+    """
+    Save image stack(s) to a memory-mapped file.
+
+    Args:
+        all_images (list[str]): A list of absolute file paths for an image sequence.
+        data_path (str): Root directory used only when `all_images` is a relative file path (str).
+        save_path (str): Output path for the generated memmap file.
+
+    Returns:
+        np.memmap: Memory-mapped array of the saved image volume.
+    """
+    all_images = [os.path.join(all_images, f) for f in os.listdir(all_images)]
+    all_images = sorted(all_images)
+    sample_slice = np.load(all_images[0])["mask"]
+    Z = len(all_images)
+    S, Y, X = sample_slice.shape
+    dtype = sample_slice.dtype
+
+    if os.path.exists(save_path):
+        os.remove(save_path)
+
+    mm = np.memmap(save_path, dtype=dtype, mode="w+", shape=(Z, S, Y, X))
+
+    for i in tqdm.tqdm(
+        range(Z), desc="saving fusion_mask to memmap temporarily: ", leave=False
+    ):
+        mm[i] = np.load(all_images[i])["mask"]
+    mm.flush()
+
+    return mm
 
 
 def transform_cmplx_model(

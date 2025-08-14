@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import torch
 import tqdm
 from bioio import BioImage
-
+import os
 from dask.array import Array
-
+import traceback
 from leonardo_toolset.destripe.guided_filter_upsample import GuidedUpsample
 from leonardo_toolset.destripe.loss_term_torch import Loss_torch
 from leonardo_toolset.destripe.network_torch import DeStripeModel_torch
@@ -18,6 +18,7 @@ from leonardo_toolset.destripe.utils import (
     global_correction,
     prepare_aux,
     transform_cmplx_model,
+    save_memmap_from_images,
 )
 from leonardo_toolset.destripe.utils_torch import (
     generate_mask_dict_torch,
@@ -757,64 +758,95 @@ class DeStripe:
                 "mask should be of same shape as input volume(s)."
             )
         # read in dual-result, if applicable
-        if flag_compose:
-            assert not isinstance(fusion_mask, type(None)), print(
-                "fusion mask is missing."
-            )
-            if fusion_mask.ndim == 3:
-                fusion_mask = fusion_mask[None]
-            assert (
-                (fusion_mask.shape[0] == z)
-                and (fusion_mask.shape[2] == m)
-                and (fusion_mask.shape[3] == n)
-            ), print(
-                "fusion mask should be of shape [z_slices, ..., m rows, n columns]."
-            )
-            assert X.shape[1] == fusion_mask.shape[1], print(
-                "inputs should be {} in total.".format(fusion_mask.shape[1])
-            )
-            assert len(angle_offset_dict) == fusion_mask.shape[1], print(
-                "angle offsets should be {} in total.".format(fusion_mask.shape[1])
-            )
-            illu_orient = []
-            for key, item in kwargs.items():
-                if key.startswith("illu_orient_"):
-                    illu_orient.append(item)
-            if len(illu_orient) == 0:
-                print(
-                    "warning: illumination orientation is not given. post-processing will be ignored."
-                )
-            else:
-                assert len(illu_orient) == fusion_mask.shape[1], print(
-                    "illu_orient_ should be {} in total.".format(fusion_mask.shape[1])
-                )
-                for illu in illu_orient:
-                    if illu in ["top", "bottom", "top-bottom"]:
-                        is_vertical_illu = True
-                    else:
-                        is_vertical_illu = False
-                    if is_vertical is not None:
-                        assert is_vertical == is_vertical_illu, print(
-                            "is_vertical should align with illu_orient."
-                        )
-                    else:
-                        is_vertical = is_vertical_illu
 
-        # training
-        out = self.train_on_full_arr(
-            X,
-            is_vertical,
-            angle_offset_dict,
-            mask_data,
-            self.train_params,
-            fusion_mask,
-            display=display,
-            device=self.device,
-            non_positive=non_positive,
-            allow_stripe_deviation=allow_stripe_deviation,
-            backend=self.backend,
-            flag_compose=flag_compose,
-            display_angle_orientation=display_angle_orientation,
-            illu_orient=illu_orient,
-        )
-        return out
+        try:
+            if flag_compose:
+                assert not isinstance(fusion_mask, type(None)), print(
+                    "fusion mask is missing."
+                )
+
+                if os.path.isdir(fusion_mask):
+                    count = len([f for f in os.listdir(fusion_mask)])
+                    assert count == X.shape[1], print(
+                        "the folder of fusion mask should contain {} files in total.".format(
+                            X.shape[1]
+                        )
+                    )
+                    fusion_mask = save_memmap_from_images(
+                        fusion_mask,
+                        os.path.join(os.getcwd(), "fusion_mask.dat"),
+                    )
+
+                elif os.path.isfile(fusion_mask):
+                    fusion_mask = np.load(fusion_mask)["mask"]
+                else:
+                    pass
+
+                if fusion_mask.ndim == 3:
+                    fusion_mask = fusion_mask[None]
+                assert (
+                    (fusion_mask.shape[0] == z)
+                    and (fusion_mask.shape[2] == m)
+                    and (fusion_mask.shape[3] == n)
+                ), print(
+                    "fusion mask should be of shape [z_slices, ..., m rows, n columns]."
+                )
+                assert X.shape[1] == fusion_mask.shape[1], print(
+                    "inputs should be {} in total.".format(fusion_mask.shape[1])
+                )
+                assert len(angle_offset_dict) == fusion_mask.shape[1], print(
+                    "angle offsets should be {} in total.".format(fusion_mask.shape[1])
+                )
+                illu_orient = []
+                for key, item in kwargs.items():
+                    if key.startswith("illu_orient_"):
+                        illu_orient.append(item)
+                if len(illu_orient) == 0:
+                    print(
+                        "warning: illumination orientation is not given. post-processing will be ignored."
+                    )
+                else:
+                    assert len(illu_orient) == fusion_mask.shape[1], print(
+                        "illu_orient_ should be {} in total.".format(
+                            fusion_mask.shape[1]
+                        )
+                    )
+                    for illu in illu_orient:
+                        if illu in ["top", "bottom", "top-bottom"]:
+                            is_vertical_illu = True
+                        else:
+                            is_vertical_illu = False
+                        if is_vertical is not None:
+                            assert is_vertical == is_vertical_illu, print(
+                                "is_vertical should align with illu_orient."
+                            )
+                        else:
+                            is_vertical = is_vertical_illu
+
+            # training
+            out = self.train_on_full_arr(
+                X,
+                is_vertical,
+                angle_offset_dict,
+                mask_data,
+                self.train_params,
+                fusion_mask,
+                display=display,
+                device=self.device,
+                non_positive=non_positive,
+                allow_stripe_deviation=allow_stripe_deviation,
+                backend=self.backend,
+                flag_compose=flag_compose,
+                display_angle_orientation=display_angle_orientation,
+                illu_orient=illu_orient,
+            )
+            return out
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
+        finally:
+            try:
+                os.remove(os.path.join(os.getcwd(), "fusion_mask.dat"))
+            except Exception as e:
+                traceback.print_exc()
+                print(e)
