@@ -637,7 +637,7 @@ class DeStripe:
 
     def train(
         self,
-        save_path: str,
+        save_path: str = None,
         is_vertical: bool = None,
         x: Union[str, np.ndarray, Array] = None,
         mask: Union[str, np.ndarray, Array] = None,
