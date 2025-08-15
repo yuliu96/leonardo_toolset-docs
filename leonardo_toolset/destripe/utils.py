@@ -33,6 +33,7 @@ def finalize_save(result_npy, done_npy, save_path):
 
     view = result_mm[:k_done]
     arr = np.asarray(view)
+    print(arr.shape)
     tifffile.imwrite(save_path, arr)
 
     del result_mm, done_mm
