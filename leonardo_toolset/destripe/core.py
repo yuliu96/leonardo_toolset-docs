@@ -818,7 +818,7 @@ class DeStripe:
                     )
                     fusion_mask = save_memmap_from_images(
                         fusion_mask,
-                        os.path.join(base, "fusion_mask.dat"),
+                        os.path.join(base, "fusion_mask.npy"),
                     )
 
                 elif os.path.isfile(fusion_mask):
@@ -896,7 +896,7 @@ class DeStripe:
                 pass
             gc.collect()
             try:
-                os.remove(os.path.join(base, "fusion_mask.dat"))
+                os.remove(os.path.join(base, "fusion_mask.npy"))
             except:
                 pass
             try:
