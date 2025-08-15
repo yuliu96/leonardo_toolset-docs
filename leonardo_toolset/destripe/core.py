@@ -216,12 +216,12 @@ class DeStripe:
             tuple: (output image, target image)
         """
         rng_seq = jax.random.PRNGKey(0) if backend == "jax" else None
-        md = (
-            sample_params["md"] if sample_params["is_vertical"] else sample_params["nd"]
-        )
-        nd = (
-            sample_params["nd"] if sample_params["is_vertical"] else sample_params["md"]
-        )
+        if sample_params["is_vertical"]:
+            md = sample_params["md"]
+            nd = sample_params["nd"]
+        else:
+            md = sample_params["nd"]
+            nd = sample_params["md"]
         target = (X * fusion_mask).sum(1, keepdims=True)
         targetd = target[:, :, :: sample_params["r"], :]
 
@@ -305,6 +305,7 @@ class DeStripe:
                 targets_f,
                 targetd_bilinear,
             )
+
         Y_GU = GuidedFilterHRModel(
             Y_raw,
             X,
@@ -724,6 +725,7 @@ class DeStripe:
               Some `.ome.tif` files may cause issues depending on your `bioio` version.
               In such cases, please load the file manually and pass a `np.ndarray` instead.
         """
+
         if save_path is not None:
             _ = ensure_abs_tif(save_path)
             base = os.path.split(save_path)[0]
@@ -809,7 +811,7 @@ class DeStripe:
 
                 if os.path.isdir(fusion_mask):
                     count = len([f for f in os.listdir(fusion_mask)])
-                    assert count == X.shape[1], print(
+                    assert count == X.shape[0], print(
                         "the folder of fusion mask should contain {} files in total.".format(
                             X.shape[1]
                         )
